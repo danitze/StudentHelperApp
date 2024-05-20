@@ -26,7 +26,7 @@ class SplashViewModel @Inject constructor(
             onFailure = {}
         ) { isLoggedIn ->
             val startDestination = if (isLoggedIn) {
-                NavigationItem.Curriculum.route
+                NavigationItem.DataLoad.route
             } else {
                 NavigationItem.Login.route
             }

@@ -34,7 +34,7 @@ fun LoginScreen(
     if (loginEvent != null) {
         LaunchedEffect(key1 = Unit) {
             launch {
-                navController.navigate(NavigationItem.Curriculum.route) {
+                navController.navigate(NavigationItem.DataLoad.route) {
                     popUpTo(NavigationItem.Login.route) {
                         inclusive = true
                     }

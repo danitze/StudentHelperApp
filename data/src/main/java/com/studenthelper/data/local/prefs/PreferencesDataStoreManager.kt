@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,6 +27,11 @@ internal class PreferencesDataStoreManager @Inject constructor(
         putData(prefKey, value)
     }
 
+    suspend fun putLong(key: String, value: Long) {
+        val prefKey = longPreferencesKey(key)
+        putData(prefKey, value)
+    }
+
     suspend fun removeString(key: String) {
         val prefKey = stringPreferencesKey(key)
         removeData(prefKey)
@@ -36,6 +42,12 @@ internal class PreferencesDataStoreManager @Inject constructor(
 
     fun observeString(key: String, defaultValue: String): Flow<String> =
         observeData(stringPreferencesKey(key), defaultValue)
+
+    fun observeLong(key: String): Flow<Long?> =
+        observeData(longPreferencesKey(key))
+
+    fun observeLong(key: String, defaultValue: Long): Flow<Long> =
+        observeData(longPreferencesKey(key), defaultValue)
 
     suspend fun putBoolean(key: String, value: Boolean) {
         val prefKey = booleanPreferencesKey(key)

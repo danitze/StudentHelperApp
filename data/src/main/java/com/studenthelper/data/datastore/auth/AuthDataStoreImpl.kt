@@ -12,6 +12,10 @@ class AuthDataStoreImpl @Inject internal constructor(
         preferencesDataStoreManager.putString(PREFERENCES_KEY_TOKEN, token)
     }
 
+    override suspend fun getToken(): String? = preferencesDataStoreManager
+        .observeString(PREFERENCES_KEY_TOKEN)
+        .first()
+
     override suspend fun getIsLoggedIn(): Boolean {
         return preferencesDataStoreManager.observeString(
             PREFERENCES_KEY_TOKEN

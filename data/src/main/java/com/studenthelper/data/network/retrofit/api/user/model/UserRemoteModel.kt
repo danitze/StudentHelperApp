@@ -20,7 +20,7 @@ data class UserRemoteModel(
     val firstName: String,
     @SerialName("lastName")
     val lastName: String,
-    @SerialName("group")
+    @SerialName("universityGroup")
     val group: GroupRemoteModel?
 )
 

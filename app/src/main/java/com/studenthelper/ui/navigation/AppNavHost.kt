@@ -5,8 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.studenthelper.ui.screens.curriculum.CurriculumItem
 import com.studenthelper.ui.screens.curriculum.CurriculumScreen
+import com.studenthelper.ui.screens.dataload.DataLoadScreen
 import com.studenthelper.ui.screens.login.LoginScreen
 import com.studenthelper.ui.screens.universityclass.UniversityClassScreen
 
@@ -23,6 +23,9 @@ fun AppNavHost(
     ) {
         composable(NavigationItem.Login.route) {
             LoginScreen(navController)
+        }
+        composable(NavigationItem.DataLoad.route) {
+            DataLoadScreen(navController)
         }
         composable(NavigationItem.Curriculum.route) {
             CurriculumScreen(navController)
