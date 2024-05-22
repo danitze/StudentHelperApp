@@ -17,17 +17,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.studenthelper.base.common.date.DateTimeFormat
 import com.studenthelper.library_ui.extension.clickableNoIndication
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Preview(showBackground = true)
 @Composable
 fun CurriculumItem(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    state: CurriculumItemState = CurriculumItemState()
 ) {
-    val isOnline by remember {
-        mutableStateOf(true)
-    }
     val homeTask by remember {
         mutableStateOf<String?>("Сторінки 22-24, вправи 201-206")
     }
@@ -41,41 +44,47 @@ fun CurriculumItem(
             .padding(all = 16.dp)
     ) {
         Text(
-            text = "Основи програмування",
+            text = state.className,
             color = Color.White,
             modifier = Modifier
                 .fillMaxWidth(),
             textAlign = TextAlign.Center
         )
 
+        val formattedStartTime = state.classStartTime
+            .toJavaLocalDateTime()
+            .format(DateTimeFormatter.ofPattern(DateTimeFormat.HOURS_MINUTES))
+
+        val formattedEndTime = state.classEndTime
+            .toJavaLocalDateTime()
+            .format(DateTimeFormatter.ofPattern(DateTimeFormat.HOURS_MINUTES))
         Text(
-            text = "8:40 - 9:12",
+            text = "$formattedStartTime - $formattedEndTime",
             color = Color.White,
             modifier = Modifier
                 .padding(top = 8.dp),
         )
 
         Text(
-            text = "Викладач: Андрєєв Андрій Андрійович",
+            text = "Викладач: ${state.lecturerLastName} ${state.lecturerFirstName}",
             color = Color.White,
             modifier = Modifier
                 .padding(top = 8.dp),
         )
 
         AnimatedContent(
-            targetState = isOnline,
+            targetState = state,
             label = "Lesson place content",
             modifier = Modifier
                 .padding(top = 8.dp)
-        ) { online ->
-            if (online) {
-                Text(
+        ) { itemState ->
+            when {
+                itemState.isOnline -> Text(
                     text = "Онлайн",
                     color = Color.White,
                 )
-            } else {
-                Text(
-                    text = "ауд. 202",
+                itemState.place != null -> Text(
+                    text = itemState.place,
                     color = Color.White,
                 )
             }
@@ -94,3 +103,14 @@ fun CurriculumItem(
 
     }
 }
+
+data class CurriculumItemState(
+    val className: String = "Назва дисципліни",
+    val classStartTime: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
+    val classEndTime: LocalDateTime = classStartTime.toJavaLocalDateTime().plusMinutes(90)
+        .toKotlinLocalDateTime(),
+    val lecturerFirstName: String = "Ім'я",
+    val lecturerLastName: String = "Прізвище",
+    val isOnline: Boolean = true,
+    val place: String? = null
+)

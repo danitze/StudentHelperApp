@@ -13,7 +13,9 @@ data class UniversityClassUiModel(
     val disciplineName: String,
     val startDate: LocalDateTime,
     val universityGroups: List<GroupUiModel>,
-    val lecturer: UserUiModel
+    val lecturer: UserUiModel,
+    val isOnline: Boolean,
+    val place: String?
 )
 
 fun UniversityClassDomainModel.toUiModel(): UniversityClassUiModel =
@@ -23,5 +25,7 @@ fun UniversityClassDomainModel.toUiModel(): UniversityClassUiModel =
         disciplineName = disciplineName,
         startDate = startDate,
         universityGroups = universityGroups.map { it.toUiModel() },
-        lecturer = lecturer.toUiModel()
+        lecturer = lecturer.toUiModel(),
+        isOnline = isOnline,
+        place = place
     )

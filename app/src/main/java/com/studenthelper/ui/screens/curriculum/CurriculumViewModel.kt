@@ -1,22 +1,43 @@
 package com.studenthelper.ui.screens.curriculum
 
+import android.util.Log
 import com.studenthelper.base.presentation.BaseViewModel
+import com.studenthelper.domain.usecase.universityclass.GetUniversityClassesUseCase
+import com.studenthelper.ui.model.universityclass.UniversityClassUiModel
+import com.studenthelper.ui.model.universityclass.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.DayOfWeek
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
-class CurriculumViewModel @Inject constructor() : BaseViewModel() {
+class CurriculumViewModel @Inject constructor(
+    private val getUniversityClassesUseCase: GetUniversityClassesUseCase
+) : BaseViewModel() {
 
     val dateFlow: StateFlow<LocalDateTime>
         get() = _dateFlow.asStateFlow()
+    val isLoadingFlow: StateFlow<Boolean>
+        get() = _isLoadingFlow.asStateFlow()
+    val universityClassesFlow: StateFlow<List<UniversityClassUiModel>>
+        get() = _universityClassesFlow.asStateFlow()
+    val noClassesFlow: StateFlow<Boolean>
+        get() = _noClassesFlow.stateIn(this, SharingStarted.Lazily, true)
 
     private val _dateFlow = MutableStateFlow(
         java.time.LocalDateTime.now().run {
@@ -28,6 +49,26 @@ class CurriculumViewModel @Inject constructor() : BaseViewModel() {
             plusDays(daysToAdd)
         }.toKotlinLocalDateTime()
     )
+    private val _isLoadingFlow = MutableStateFlow(false)
+    private val _universityClassesFlow = MutableStateFlow(listOf<UniversityClassUiModel>())
+    private val _noClassesFlow = _universityClassesFlow.map { it.isEmpty() }
+
+    private var loadClassesJob: Job? = null
+
+    init {
+        _dateFlow.onEach { date ->
+            loadClasses(
+                fromDate = java.time.LocalDateTime.of(
+                    date.date.toJavaLocalDate(),
+                    LocalTime.MIDNIGHT
+                ).toKotlinLocalDateTime(),
+                toDate = java.time.LocalDateTime.of(
+                    date.date.toJavaLocalDate().plusDays(1),
+                    LocalTime.MIDNIGHT
+                ).minusNanos(1).toKotlinLocalDateTime()
+            )
+        }.launchIn(this)
+    }
 
     fun onNextDayClick() {
         _dateFlow.update {
@@ -48,6 +89,27 @@ class CurriculumViewModel @Inject constructor() : BaseViewModel() {
                 1L
             }
             it.toJavaLocalDateTime().minusDays(daysToSubtract).toKotlinLocalDateTime()
+        }
+    }
+
+    private fun loadClasses(
+        fromDate: LocalDateTime,
+        toDate: LocalDateTime
+    ) {
+        loadClassesJob?.cancel()
+        _isLoadingFlow.value = true
+        loadClassesJob = getUniversityClassesUseCase(
+            scope = this,
+            data = GetUniversityClassesUseCase.GetUniversityClassesData(
+                fromDate = fromDate,
+                toDate = toDate
+            ),
+            onFailure = {
+                Log.e("MyTag", "Error!!", it)
+                _isLoadingFlow.value = false
+            }
+        ) { universityClasses ->
+            _universityClassesFlow.value = universityClasses.map { it.toUiModel() }
         }
     }
 

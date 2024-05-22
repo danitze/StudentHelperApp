@@ -1,5 +1,6 @@
 package com.studenthelper.ui.screens.curriculum
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +52,7 @@ fun CurriculumScreen(
     var isMenuVisible by remember {
         mutableStateOf(false)
     }
+    val universityClasses by viewModel.universityClassesFlow.collectAsStateWithLifecycle()
     AppTheme {
         Scaffold(
             topBar = {
@@ -137,7 +140,8 @@ fun CurriculumScreen(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    items(3) { item ->
+                    items(universityClasses) { universityClass ->
+                        Log.d("MyTag", "$universityClass")
                         CurriculumItem(
                             modifier = Modifier
                                 .padding(
@@ -149,7 +153,13 @@ fun CurriculumScreen(
                                 navController.navigate(
                                     NavigationItem.UniversityClass.route
                                 )
-                            }
+                            },
+                            state = CurriculumItemState(
+                                className = universityClass.disciplineName,
+                                classStartTime = universityClass.startDate,
+                                lecturerFirstName = universityClass.lecturer.firstName,
+                                lecturerLastName = universityClass.lecturer.lastName
+                            )
                         )
                     }
                 }
