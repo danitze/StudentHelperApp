@@ -21,4 +21,8 @@ class UniversityClassRepositoryImpl @Inject constructor(
         ).map { it.toDomainModel() }
     }
 
+    override suspend fun getUniversityClass(id: Long): UniversityClassDomainModel {
+        return universityClassDataSource.getUniversityClass(id).toDomainModel()
+    }
+
 }

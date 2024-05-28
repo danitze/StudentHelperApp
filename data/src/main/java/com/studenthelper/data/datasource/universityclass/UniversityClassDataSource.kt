@@ -10,4 +10,8 @@ interface UniversityClassDataSource {
         toDate: LocalDateTime
     ): List<UniversityClassDataModel>
 
+    suspend fun getUniversityClass(
+        id: Long
+    ): UniversityClassDataModel
+
 }

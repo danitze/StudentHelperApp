@@ -23,7 +23,7 @@ class DataLoadViewModel @Inject constructor(
         dataLoadUseCase(
             scope = this,
             onFailure = {
-                Log.e("MyTag", "Error data loading", it)
+                Log.e("MyTag", "Error data load", it)
             }
         ) {
             _navigateToCurriculumEventFlow.value = Unit

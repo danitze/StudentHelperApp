@@ -9,7 +9,7 @@ import com.studenthelper.data.local.database.model.group.toDataModel
 import com.studenthelper.data.local.database.model.group.toEntityModel
 import com.studenthelper.data.model.user.UserDataModel
 
-@Entity
+@Entity(tableName = "users")
 data class UserEntityModel(
     @PrimaryKey
     val id: Long,

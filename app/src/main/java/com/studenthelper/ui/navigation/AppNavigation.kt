@@ -4,7 +4,7 @@ enum class Screen(val route: String) {
     LOGIN(LOGIN.name),
     DATA_LOAD(DATA_LOAD.name),
     CURRICULUM(CURRICULUM.name),
-    UNIVERSITY_CLASS(UNIVERSITY_CLASS.name)
+    UNIVERSITY_CLASS("${UNIVERSITY_CLASS.name}/{$CLASS_ID}")
 }
 
 sealed class NavigationItem(val route: String) {
@@ -13,3 +13,5 @@ sealed class NavigationItem(val route: String) {
     data object Curriculum : NavigationItem(Screen.CURRICULUM.route)
     data object UniversityClass : NavigationItem(Screen.UNIVERSITY_CLASS.route)
 }
+
+const val CLASS_ID = "CLASS_ID"

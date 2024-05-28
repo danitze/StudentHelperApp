@@ -1,13 +1,11 @@
 package com.studenthelper.ui.screens.curriculum
 
-import android.util.Log
 import com.studenthelper.base.presentation.BaseViewModel
 import com.studenthelper.domain.usecase.universityclass.GetUniversityClassesUseCase
 import com.studenthelper.ui.model.universityclass.UniversityClassUiModel
 import com.studenthelper.ui.model.universityclass.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -105,7 +103,6 @@ class CurriculumViewModel @Inject constructor(
                 toDate = toDate
             ),
             onFailure = {
-                Log.e("MyTag", "Error!!", it)
                 _isLoadingFlow.value = false
             }
         ) { universityClasses ->

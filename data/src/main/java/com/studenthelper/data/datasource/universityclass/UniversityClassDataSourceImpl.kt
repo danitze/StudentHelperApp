@@ -24,4 +24,8 @@ class UniversityClassDataSourceImpl @Inject constructor(
         ).map { it.toDataModel() }
     }
 
+    override suspend fun getUniversityClass(id: Long): UniversityClassDataModel {
+        return universityClassRetrofitApi.getUniversityClass(id).toDataModel()
+    }
+
 }

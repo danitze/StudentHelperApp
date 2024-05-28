@@ -10,4 +10,8 @@ interface UniversityClassRepository {
         toDate: LocalDateTime
     ): List<UniversityClassDomainModel>
 
+    suspend fun getUniversityClass(
+        id: Long
+    ): UniversityClassDomainModel
+
 }

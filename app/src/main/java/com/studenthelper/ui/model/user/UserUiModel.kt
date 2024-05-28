@@ -12,7 +12,10 @@ data class UserUiModel(
     val firstName: String,
     val lastName: String,
     val group: GroupUiModel?
-)
+) {
+    val fullName: String
+        get() = "$lastName $firstName"
+}
 
 fun UserDomainModel.toUiModel(): UserUiModel = UserUiModel(
     id = id,

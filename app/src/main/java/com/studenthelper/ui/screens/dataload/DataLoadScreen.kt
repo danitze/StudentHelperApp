@@ -34,6 +34,7 @@ fun DataLoadScreen(
                         inclusive = true
                     }
                 }
+                viewModel.navigateToCurriculumEventConsumed()
             }
         }
     }

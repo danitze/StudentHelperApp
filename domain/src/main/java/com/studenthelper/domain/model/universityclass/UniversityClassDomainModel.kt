@@ -12,5 +12,6 @@ data class UniversityClassDomainModel(
     val universityGroups: List<GroupDomainModel>,
     val lecturer: UserDomainModel,
     val isOnline: Boolean,
-    val place: String?
+    val place: String?,
+    val homeTask: String?
 )

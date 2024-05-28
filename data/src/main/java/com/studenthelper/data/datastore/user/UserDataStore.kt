@@ -8,6 +8,8 @@ interface UserDataStore {
 
     suspend fun saveCurrentUserId(userId: Long)
 
-    suspend fun getCurrentUserId(): Long?
+    suspend fun getCurrentUserId(): Long
+
+    suspend fun getUser(userId: Long): UserDataModel
 
 }

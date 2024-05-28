@@ -1,6 +1,7 @@
 package com.studenthelper.data.datastore.user
 
 import com.studenthelper.data.local.database.dao.user.UserDao
+import com.studenthelper.data.local.database.model.user.toDataModel
 import com.studenthelper.data.local.database.model.user.toEntityModel
 import com.studenthelper.data.local.prefs.PreferencesDataStoreManager
 import com.studenthelper.data.model.user.UserDataModel
@@ -20,9 +21,13 @@ class UserDataStoreImpl @Inject internal constructor(
         preferencesDataStoreManager.putLong(PREFERENCES_KEY_USER_ID, userId)
     }
 
-    override suspend fun getCurrentUserId(): Long? = preferencesDataStoreManager
-        .observeLong(PREFERENCES_KEY_USER_ID)
+    override suspend fun getCurrentUserId(): Long = preferencesDataStoreManager
+        .observeLong(PREFERENCES_KEY_USER_ID, 0L)
         .first()
+
+    override suspend fun getUser(userId: Long): UserDataModel {
+        return userDao.getUser(userId).toDataModel()
+    }
 
     companion object {
         private const val PREFERENCES_KEY_USER_ID = "PREFERENCES_KEY_USER_ID"

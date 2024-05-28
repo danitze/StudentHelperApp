@@ -12,15 +12,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,17 +28,21 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.Visibility
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.studenthelper.library_ui.AppTheme
 import com.studenthelper.library_ui.R
+import com.studenthelper.library_ui.components.Loader
+import com.studenthelper.ui.model.user.UserUiRole
 
 @Preview(showBackground = true)
 @Composable
 fun MenuScreen(
-    onClose: () -> Unit = {}
+    onClose: () -> Unit = {},
+    viewModel: MenuViewModel = hiltViewModel()
 ) {
-    val group by remember {
-        mutableStateOf<String?>("ІПС-41")
-    }
+    val isLoading by viewModel.isLoadingFlow.collectAsStateWithLifecycle()
+    val user by viewModel.userFlow.collectAsStateWithLifecycle()
     AppTheme {
         Scaffold(
             topBar = {
@@ -108,7 +109,7 @@ fun MenuScreen(
                 }
 
                 Text(
-                    text = "Андрєєв Данило Дмитрович",
+                    text = user?.fullName ?: "",
                     modifier = Modifier.constrainAs(nameRef) {
                         top.linkTo(profileIconRef.bottom, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
@@ -120,14 +121,22 @@ fun MenuScreen(
                 )
 
                 Text(
-                    text = group ?: "",
+                    text = when {
+                        user?.group != null -> user?.group!!.name
+                        user?.role == UserUiRole.TEACHER -> "Викладач"
+                        else -> ""
+                    },
                     modifier = Modifier.constrainAs(groupRef) {
                         top.linkTo(nameRef.bottom, margin = 8.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                         width = Dimension.fillToConstraints
                         height = Dimension.wrapContent
-                        visibility = if (group == null) Visibility.Gone else Visibility.Visible
+                        visibility = when {
+                            user?.group != null -> Visibility.Visible
+                            user?.role == UserUiRole.TEACHER -> Visibility.Visible
+                            else -> Visibility.Gone
+                        }
                     },
                     textAlign = TextAlign.Center
                 )
@@ -144,6 +153,16 @@ fun MenuScreen(
                 ) {
                     Text(text = "Вийти")
                 }
+
+                Loader(
+                    modifier = Modifier.constrainAs(createRef()) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                    isVisible = isLoading
+                )
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.studenthelper.ui.screens.curriculum
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -28,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,6 +36,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.studenthelper.base.common.date.DateTimeFormat
 import com.studenthelper.library_ui.AppTheme
+import com.studenthelper.library_ui.components.Loader
+import com.studenthelper.ui.navigation.CLASS_ID
 import com.studenthelper.ui.navigation.NavigationItem
 import com.studenthelper.ui.screens.menu.MenuScreen
 import kotlinx.datetime.toJavaLocalDateTime
@@ -54,6 +56,7 @@ fun CurriculumScreen(
     }
     val universityClasses by viewModel.universityClassesFlow.collectAsStateWithLifecycle()
     val noClasses by viewModel.noClassesFlow.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoadingFlow.collectAsStateWithLifecycle()
     AppTheme {
         Scaffold(
             topBar = {
@@ -137,14 +140,14 @@ fun CurriculumScreen(
                     .padding(top = 8.dp)
                     .padding(padding)
             ) {
-
                 if (noClasses) {
                     Text(
                         text = "Заняття відсутні",
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth()
-                            .align(Alignment.Center)
+                            .align(Alignment.Center),
+                        textAlign = TextAlign.Center
                     )
                 }
 
@@ -153,7 +156,6 @@ fun CurriculumScreen(
                         .fillMaxSize()
                 ) {
                     items(universityClasses) { universityClass ->
-                        Log.d("MyTag", "$universityClass")
                         CurriculumItem(
                             modifier = Modifier
                                 .padding(
@@ -163,7 +165,10 @@ fun CurriculumScreen(
                                 .fillMaxWidth(),
                             onClick = {
                                 navController.navigate(
-                                    NavigationItem.UniversityClass.route
+                                    NavigationItem.UniversityClass.route.replace(
+                                        oldValue = "{$CLASS_ID}",
+                                        universityClass.id.toString()
+                                    )
                                 )
                             },
                             state = CurriculumItemState(
@@ -175,6 +180,12 @@ fun CurriculumScreen(
                         )
                     }
                 }
+
+                Loader(
+                    modifier = Modifier
+                        .align(Alignment.Center),
+                    isVisible = isLoading
+                )
             }
         }
     }

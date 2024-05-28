@@ -3,8 +3,10 @@ package com.studenthelper.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.studenthelper.ui.screens.curriculum.CurriculumScreen
 import com.studenthelper.ui.screens.dataload.DataLoadScreen
 import com.studenthelper.ui.screens.login.LoginScreen
@@ -30,7 +32,16 @@ fun AppNavHost(
         composable(NavigationItem.Curriculum.route) {
             CurriculumScreen(navController)
         }
-        composable(NavigationItem.UniversityClass.route) {
+        composable(
+            NavigationItem.UniversityClass.route,
+            arguments = listOf(
+                navArgument(CLASS_ID) {
+                    type = NavType.LongType
+                    nullable = false
+                    defaultValue = 0L
+                }
+            )
+        ) {
             UniversityClassScreen(navController)
         }
     }

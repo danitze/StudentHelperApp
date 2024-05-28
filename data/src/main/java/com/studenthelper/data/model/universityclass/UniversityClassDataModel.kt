@@ -15,7 +15,8 @@ data class UniversityClassDataModel(
     val universityGroups: List<GroupDataModel>,
     val lecturer: UserDataModel,
     val isOnline: Boolean,
-    val place: String?
+    val place: String?,
+    val homeTask: String?
 )
 
 fun UniversityClassDataModel.toDomainModel(): UniversityClassDomainModel =
@@ -27,5 +28,6 @@ fun UniversityClassDataModel.toDomainModel(): UniversityClassDomainModel =
         universityGroups = universityGroups.map { it.toDomainModel() },
         lecturer = lecturer.toDomainModel(),
         isOnline = isOnline,
-        place = place
+        place = place,
+        homeTask = homeTask
     )

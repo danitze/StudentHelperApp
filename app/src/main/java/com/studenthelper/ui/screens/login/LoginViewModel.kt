@@ -1,6 +1,5 @@
 package com.studenthelper.ui.screens.login
 
-import android.util.Log
 import com.studenthelper.base.presentation.BaseViewModel
 import com.studenthelper.domain.usecase.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +32,6 @@ class LoginViewModel @Inject constructor(
                 password = _passwordFlow.value
             ),
             onFailure = {
-                Log.e("MyTag", "Error", it)
             }
         ) {
             _loginEventFlow.value = Unit
