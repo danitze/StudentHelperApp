@@ -66,7 +66,7 @@ fun UniversityClassScreen(
                         }
 
                         Text(
-                            text = "Основи програмування",
+                            text = "OOP",
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
                                 .weight(1f)
@@ -85,13 +85,13 @@ fun UniversityClassScreen(
             ) {
 
                 Text(
-                    text = "8:40 - 9:12",
+                    text = "8:40 - 10:10",
                     modifier = Modifier
                         .padding(top = 8.dp),
                 )
 
                 Text(
-                    text = "Викладач: Андрєєв Андрій Андрійович",
+                    text = "Викладач: Teacherov Teacher",
                     modifier = Modifier
                         .padding(top = 8.dp),
                 )
