@@ -53,6 +53,7 @@ fun CurriculumScreen(
         mutableStateOf(false)
     }
     val universityClasses by viewModel.universityClassesFlow.collectAsStateWithLifecycle()
+    val noClasses by viewModel.noClassesFlow.collectAsStateWithLifecycle()
     AppTheme {
         Scaffold(
             topBar = {
@@ -136,6 +137,17 @@ fun CurriculumScreen(
                     .padding(top = 8.dp)
                     .padding(padding)
             ) {
+
+                if (noClasses) {
+                    Text(
+                        text = "Заняття відсутні",
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                            .align(Alignment.Center)
+                    )
+                }
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
