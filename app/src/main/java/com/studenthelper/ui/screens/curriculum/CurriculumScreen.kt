@@ -55,6 +55,7 @@ fun CurriculumScreen(
         mutableStateOf(false)
     }
     val universityClasses by viewModel.universityClassesFlow.collectAsStateWithLifecycle()
+    val currentUser by viewModel.currentUserFlow.collectAsStateWithLifecycle()
     val noClasses by viewModel.noClassesFlow.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoadingFlow.collectAsStateWithLifecycle()
     AppTheme {
@@ -151,33 +152,33 @@ fun CurriculumScreen(
                     )
                 }
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    items(universityClasses) { universityClass ->
-                        CurriculumItem(
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 16.dp,
-                                    vertical = 8.dp
-                                )
-                                .fillMaxWidth(),
-                            onClick = {
-                                navController.navigate(
-                                    NavigationItem.UniversityClass.route.replace(
-                                        oldValue = "{$CLASS_ID}",
-                                        universityClass.id.toString()
+                currentUser?.let { user ->
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        items(universityClasses) { universityClass ->
+                            CurriculumItem(
+                                modifier = Modifier
+                                    .padding(
+                                        horizontal = 16.dp,
+                                        vertical = 8.dp
                                     )
+                                    .fillMaxWidth(),
+                                onClick = {
+                                    navController.navigate(
+                                        NavigationItem.UniversityClass.route.replace(
+                                            oldValue = "{$CLASS_ID}",
+                                            universityClass.id.toString()
+                                        )
+                                    )
+                                },
+                                state = CurriculumItemState(
+                                    universityClass = universityClass,
+                                    user = user
                                 )
-                            },
-                            state = CurriculumItemState(
-                                className = universityClass.disciplineName,
-                                classStartTime = universityClass.startDate,
-                                lecturerFirstName = universityClass.lecturer.firstName,
-                                lecturerLastName = universityClass.lecturer.lastName
                             )
-                        )
+                        }
                     }
                 }
 

@@ -15,21 +15,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.studenthelper.base.common.date.DateTimeFormat
 import com.studenthelper.library_ui.extension.clickableNoIndication
-import kotlinx.datetime.LocalDateTime
+import com.studenthelper.ui.model.universityclass.UniversityClassUiModel
+import com.studenthelper.ui.model.user.UserUiModel
+import com.studenthelper.ui.model.user.UserUiRole
 import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.format.DateTimeFormatter
 
-@Preview(showBackground = true)
 @Composable
 fun CurriculumItem(
+    state: CurriculumItemState,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
-    state: CurriculumItemState = CurriculumItemState()
 ) {
     val homeTask by remember {
         mutableStateOf<String?>("Сторінки 22-24, вправи 201-206")
@@ -44,19 +43,20 @@ fun CurriculumItem(
             .padding(all = 16.dp)
     ) {
         Text(
-            text = state.className,
+            text = state.universityClass.disciplineName,
             color = Color.White,
             modifier = Modifier
                 .fillMaxWidth(),
             textAlign = TextAlign.Center
         )
 
-        val formattedStartTime = state.classStartTime
+        val formattedStartTime = state.universityClass.startDate
             .toJavaLocalDateTime()
             .format(DateTimeFormatter.ofPattern(DateTimeFormat.HOURS_MINUTES))
 
-        val formattedEndTime = state.classEndTime
+        val formattedEndTime = state.universityClass.startDate
             .toJavaLocalDateTime()
+            .plusMinutes(90)
             .format(DateTimeFormatter.ofPattern(DateTimeFormat.HOURS_MINUTES))
         Text(
             text = "$formattedStartTime - $formattedEndTime",
@@ -66,7 +66,11 @@ fun CurriculumItem(
         )
 
         Text(
-            text = "Викладач: ${state.lecturerLastName} ${state.lecturerFirstName}",
+            text = if (state.user.role == UserUiRole.STUDENT) {
+                "Викладач: ${state.universityClass.lecturer.fullName}"
+            } else {
+                "Групи: ${state.universityClass.universityGroups.map { it.name }.joinToString()}"
+            },
             color = Color.White,
             modifier = Modifier
                 .padding(top = 8.dp),
@@ -79,12 +83,13 @@ fun CurriculumItem(
                 .padding(top = 8.dp)
         ) { itemState ->
             when {
-                itemState.isOnline -> Text(
+                itemState.universityClass.isOnline -> Text(
                     text = "Онлайн",
                     color = Color.White,
                 )
-                itemState.place != null -> Text(
-                    text = itemState.place,
+
+                itemState.universityClass.place != null -> Text(
+                    text = itemState.universityClass.place,
                     color = Color.White,
                 )
             }
@@ -105,12 +110,6 @@ fun CurriculumItem(
 }
 
 data class CurriculumItemState(
-    val className: String = "Назва дисципліни",
-    val classStartTime: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
-    val classEndTime: LocalDateTime = classStartTime.toJavaLocalDateTime().plusMinutes(90)
-        .toKotlinLocalDateTime(),
-    val lecturerFirstName: String = "Ім'я",
-    val lecturerLastName: String = "Прізвище",
-    val isOnline: Boolean = true,
-    val place: String? = null
+    val universityClass: UniversityClassUiModel,
+    val user: UserUiModel
 )

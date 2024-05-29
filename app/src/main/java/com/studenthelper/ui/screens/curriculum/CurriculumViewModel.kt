@@ -4,6 +4,8 @@ import com.studenthelper.base.presentation.BaseViewModel
 import com.studenthelper.domain.usecase.universityclass.GetUniversityClassesUseCase
 import com.studenthelper.ui.model.universityclass.UniversityClassUiModel
 import com.studenthelper.ui.model.universityclass.toUiModel
+import com.studenthelper.ui.model.user.UserUiModel
+import com.studenthelper.ui.model.user.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +38,8 @@ class CurriculumViewModel @Inject constructor(
         get() = _universityClassesFlow.asStateFlow()
     val noClassesFlow: StateFlow<Boolean>
         get() = _noClassesFlow.stateIn(this, SharingStarted.Lazily, true)
+    val currentUserFlow: StateFlow<UserUiModel?>
+        get() = _currentUserFlow.asStateFlow()
 
     private val _dateFlow = MutableStateFlow(
         java.time.LocalDateTime.now().run {
@@ -50,6 +54,7 @@ class CurriculumViewModel @Inject constructor(
     private val _isLoadingFlow = MutableStateFlow(false)
     private val _universityClassesFlow = MutableStateFlow(listOf<UniversityClassUiModel>())
     private val _noClassesFlow = _universityClassesFlow.map { it.isEmpty() }
+    private val _currentUserFlow = MutableStateFlow<UserUiModel?>(null)
 
     private var loadClassesJob: Job? = null
 
@@ -105,9 +110,10 @@ class CurriculumViewModel @Inject constructor(
             onFailure = {
                 _isLoadingFlow.value = false
             }
-        ) { universityClasses ->
+        ) { data ->
             _isLoadingFlow.value = false
-            _universityClassesFlow.value = universityClasses.map { it.toUiModel() }
+            _universityClassesFlow.value = data.universityClasses.map { it.toUiModel() }
+            _currentUserFlow.value = data.user.toUiModel()
         }
     }
 
