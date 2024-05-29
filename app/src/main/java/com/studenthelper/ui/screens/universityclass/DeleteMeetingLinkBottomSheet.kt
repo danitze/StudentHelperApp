@@ -7,7 +7,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -22,16 +21,12 @@ import com.studenthelper.library_ui.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMeetingLinkBottomSheet(
-    onLinkAdd: (String, Boolean) -> Unit,
+fun DeleteMeetingLinkBottomSheet(
+    onLinkDelete: (Boolean) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     bottomSheetState: SheetState = rememberModalBottomSheetState(),
 ) {
-
-    var link by remember {
-        mutableStateOf("")
-    }
 
     var isForSeries by remember {
         mutableStateOf(false)
@@ -43,18 +38,6 @@ fun AddMeetingLinkBottomSheet(
             sheetState = bottomSheetState,
             modifier = modifier
         ) {
-            OutlinedTextField(
-                value = link,
-                onValueChange = { link = it },
-                singleLine = true,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
-                label = {
-                    Text(text = "Посилання на заняття")
-                }
-            )
-
             Row(
                 modifier = Modifier.padding(top = 8.dp)
             ) {
@@ -70,13 +53,13 @@ fun AddMeetingLinkBottomSheet(
             }
 
             Button(
-                onClick = { onLinkAdd(link, isForSeries) },
+                onClick = { onLinkDelete(isForSeries) },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp)
                     .fillMaxWidth()
             ) {
-                Text(text = "Додати посилання")
+                Text(text = "Видалити посилання")
             }
         }
     }
