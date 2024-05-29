@@ -9,15 +9,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,12 +35,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.studenthelper.base.common.date.DateTimeFormat
 import com.studenthelper.library_ui.AppTheme
 import com.studenthelper.library_ui.R
 import com.studenthelper.library_ui.components.Loader
 import com.studenthelper.ui.model.user.UserUiRole
 import com.studenthelper.ui.screens.universityclass.model.UniversityClassContent
+import kotlinx.coroutines.launch
+import kotlinx.datetime.toJavaLocalDateTime
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun UniversityClassScreen(
@@ -42,6 +54,11 @@ fun UniversityClassScreen(
 ) {
     val content by viewModel.contentFlow.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoadingFlow.collectAsStateWithLifecycle()
+    val addHomeTaskBottomSheetState = rememberModalBottomSheetState()
+    var isAddHomeTaskBottomSheetVisible by remember {
+        mutableStateOf(false)
+    }
+    val coroutineScope = rememberCoroutineScope()
     AppTheme {
         Scaffold(
             topBar = {
@@ -87,7 +104,11 @@ fun UniversityClassScreen(
                     .fillMaxSize()
             ) {
                 content?.let {
-                    Content(content = it)
+                    Content(
+                        content = it,
+                        onDeleteHomeTask = { viewModel.deleteHomeTask() },
+                        onAddHomeTask = { isAddHomeTaskBottomSheetVisible = true }
+                    )
                 }
 
                 Loader(
@@ -102,12 +123,32 @@ fun UniversityClassScreen(
             }
 
         }
+
+        if (isAddHomeTaskBottomSheetVisible) {
+            AddHomeTaskBottomSheet(
+                onHomeTaskAdd = { homeTask ->
+                    coroutineScope.launch {
+                        addHomeTaskBottomSheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!addHomeTaskBottomSheetState.isVisible) {
+                            isAddHomeTaskBottomSheetVisible = false
+                        }
+                    }
+                    viewModel.addHomeTask(homeTask)
+                },
+                onDismiss = { isAddHomeTaskBottomSheetVisible = false },
+                bottomSheetState = addHomeTaskBottomSheetState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
 @Composable
 private fun ConstraintLayoutScope.Content(
-    content: UniversityClassContent
+    content: UniversityClassContent,
+    onDeleteHomeTask: () -> Unit,
+    onAddHomeTask: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -122,17 +163,38 @@ private fun ConstraintLayoutScope.Content(
             .padding(horizontal = 16.dp)
     ) {
 
+        val formattedStartTime = content.universityClass.startDate
+            .toJavaLocalDateTime()
+            .format(DateTimeFormatter.ofPattern(DateTimeFormat.HOURS_MINUTES))
+
+        val formattedEndTime = content.universityClass.startDate
+            .toJavaLocalDateTime()
+            .plusMinutes(90)
+            .format(DateTimeFormatter.ofPattern(DateTimeFormat.HOURS_MINUTES))
         Text(
-            text = "8:40 - 10:10",
+            text = "$formattedStartTime - $formattedEndTime",
+            color = Color.White,
             modifier = Modifier
                 .padding(top = 8.dp),
         )
 
-        Text(
-            text = "Викладач: Teacherov Teacher",
-            modifier = Modifier
-                .padding(top = 8.dp),
-        )
+        AnimatedContent(targetState = content.user.role) { role ->
+            when (role) {
+                UserUiRole.TEACHER -> Text(
+                    text = "Групи: ${
+                        content.universityClass.universityGroups.map { it.name }.joinToString()
+                    }",
+                    modifier = Modifier
+                        .padding(top = 8.dp),
+                )
+
+                else -> Text(
+                    text = "Викладач: ${content.universityClass.lecturer.fullName}",
+                    modifier = Modifier
+                        .padding(top = 8.dp),
+                )
+            }
+        }
 
         AnimatedContent(
             targetState = content.universityClass.isOnline,
@@ -166,14 +228,14 @@ private fun ConstraintLayoutScope.Content(
                         text = "Домашнє завдання: ${content.universityClass.homeTask}",
                     )
                     if (content.user.role == UserUiRole.TEACHER) {
-                        Button(onClick = { /*TODO*/ }) {
+                        Button(onClick = onDeleteHomeTask) {
                             Text(text = "Видалити домашнє завдання")
                         }
                     }
                 }
             } else {
                 if (content.user.role == UserUiRole.TEACHER) {
-                    Button(onClick = { /*TODO*/ }) {
+                    Button(onClick = onAddHomeTask) {
                         Text(text = "Додати домашнє завдання")
                     }
                 }

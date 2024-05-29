@@ -106,6 +106,7 @@ class CurriculumViewModel @Inject constructor(
                 _isLoadingFlow.value = false
             }
         ) { universityClasses ->
+            _isLoadingFlow.value = false
             _universityClassesFlow.value = universityClasses.map { it.toUiModel() }
         }
     }
