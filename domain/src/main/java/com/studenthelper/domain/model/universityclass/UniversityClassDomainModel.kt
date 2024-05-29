@@ -13,5 +13,6 @@ data class UniversityClassDomainModel(
     val lecturer: UserDomainModel,
     val isOnline: Boolean,
     val place: String?,
-    val homeTask: String?
+    val homeTask: String?,
+    val link: String?
 )

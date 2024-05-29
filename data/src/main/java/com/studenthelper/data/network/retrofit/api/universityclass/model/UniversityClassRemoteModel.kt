@@ -28,7 +28,9 @@ data class UniversityClassRemoteModel(
     @SerialName("place")
     val place: String?,
     @SerialName("homeTask")
-    val homeTask: String?
+    val homeTask: String?,
+    @SerialName("link")
+    val link: String?
 )
 
 fun UniversityClassRemoteModel.toDataModel(): UniversityClassDataModel = UniversityClassDataModel(
@@ -40,5 +42,6 @@ fun UniversityClassRemoteModel.toDataModel(): UniversityClassDataModel = Univers
     lecturer = lecturer.toDataModel(),
     isOnline = isOnline,
     place = place,
-    homeTask = homeTask
+    homeTask = homeTask,
+    link = link
 )

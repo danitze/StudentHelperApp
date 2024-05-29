@@ -8,11 +8,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -55,7 +59,15 @@ fun UniversityClassScreen(
     val content by viewModel.contentFlow.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoadingFlow.collectAsStateWithLifecycle()
     val addHomeTaskBottomSheetState = rememberModalBottomSheetState()
+    val addLinkBottomSheetState = rememberModalBottomSheetState()
+    val deleteLinkBottomSheetState = rememberModalBottomSheetState()
     var isAddHomeTaskBottomSheetVisible by remember {
+        mutableStateOf(false)
+    }
+    var isAddLinkBottomSheetVisible by remember {
+        mutableStateOf(false)
+    }
+    var isDeleteLinkBottomSheetVisible by remember {
         mutableStateOf(false)
     }
     val coroutineScope = rememberCoroutineScope()
@@ -107,7 +119,9 @@ fun UniversityClassScreen(
                     Content(
                         content = it,
                         onDeleteHomeTask = { viewModel.deleteHomeTask() },
-                        onAddHomeTask = { isAddHomeTaskBottomSheetVisible = true }
+                        onAddHomeTask = { isAddHomeTaskBottomSheetVisible = true },
+                        onAddLinkClick = { isAddLinkBottomSheetVisible = true },
+                        onDeleteLinkClick = { isDeleteLinkBottomSheetVisible = true }
                     )
                 }
 
@@ -141,6 +155,42 @@ fun UniversityClassScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+
+        if (isAddLinkBottomSheetVisible) {
+            AddMeetingLinkBottomSheet(
+                onLinkAdd = { link, isForSeries ->
+                    coroutineScope.launch {
+                        addLinkBottomSheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!addLinkBottomSheetState.isVisible) {
+                            isAddLinkBottomSheetVisible = false
+                        }
+                    }
+                    viewModel.addLink(link, isForSeries)
+                },
+                onDismiss = { isAddLinkBottomSheetVisible = false },
+                bottomSheetState = addLinkBottomSheetState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        if (isDeleteLinkBottomSheetVisible) {
+            DeleteMeetingLinkBottomSheet(
+                onLinkDelete = { isForSeries ->
+                    coroutineScope.launch {
+                        deleteLinkBottomSheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!deleteLinkBottomSheetState.isVisible) {
+                            isDeleteLinkBottomSheetVisible = false
+                        }
+                    }
+                    viewModel.deleteLink(isForSeries)
+                },
+                onDismiss = { isDeleteLinkBottomSheetVisible = false },
+                bottomSheetState = deleteLinkBottomSheetState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -148,7 +198,9 @@ fun UniversityClassScreen(
 private fun ConstraintLayoutScope.Content(
     content: UniversityClassContent,
     onDeleteHomeTask: () -> Unit,
-    onAddHomeTask: () -> Unit
+    onAddHomeTask: () -> Unit,
+    onAddLinkClick: () -> Unit,
+    onDeleteLinkClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -161,6 +213,7 @@ private fun ConstraintLayoutScope.Content(
                 height = Dimension.fillToConstraints
             }
             .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
 
         val formattedStartTime = content.universityClass.startDate
@@ -203,9 +256,37 @@ private fun ConstraintLayoutScope.Content(
                 .padding(top = 8.dp)
         ) { online ->
             if (online) {
-                Text(
-                    text = "Онлайн",
-                )
+                Column {
+                    Text(
+                        text = "Онлайн",
+                    )
+                    AnimatedContent(targetState = content.universityClass.link == null) { isLinkNotSet ->
+                        if (isLinkNotSet) {
+                            if (content.user.role == UserUiRole.TEACHER) {
+                                Button(
+                                    onClick = onAddLinkClick
+                                ) {
+                                    Text(text = "Додати посилання")
+                                }
+                            }
+                        } else {
+                            Column {
+                                Text(text = content.universityClass.link ?: "")
+                                if (content.user.role == UserUiRole.TEACHER) {
+                                    Button(
+                                        onClick = onDeleteLinkClick,
+                                        colors = ButtonDefaults.buttonColors().copy(
+                                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                                            contentColor = MaterialTheme.colorScheme.error
+                                        )
+                                    ) {
+                                        Text(text = "Видалити посилання")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 if (content.universityClass.place != null) {
                     Text(
@@ -228,7 +309,13 @@ private fun ConstraintLayoutScope.Content(
                         text = "Домашнє завдання: ${content.universityClass.homeTask}",
                     )
                     if (content.user.role == UserUiRole.TEACHER) {
-                        Button(onClick = onDeleteHomeTask) {
+                        Button(
+                            onClick = onDeleteHomeTask,
+                            colors = ButtonDefaults.buttonColors().copy(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
                             Text(text = "Видалити домашнє завдання")
                         }
                     }

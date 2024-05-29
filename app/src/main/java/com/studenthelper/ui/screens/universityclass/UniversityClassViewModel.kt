@@ -4,7 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import com.studenthelper.base.common.extensions.require
 import com.studenthelper.base.presentation.BaseViewModel
 import com.studenthelper.domain.usecase.universityclass.AddHomeTaskUseCase
+import com.studenthelper.domain.usecase.universityclass.AddLinkToSeriesUseCase
+import com.studenthelper.domain.usecase.universityclass.AddLinkUseCase
 import com.studenthelper.domain.usecase.universityclass.DeleteHomeTaskUseCase
+import com.studenthelper.domain.usecase.universityclass.DeleteLinkFromSeriesUseCase
+import com.studenthelper.domain.usecase.universityclass.DeleteLinkUseCase
 import com.studenthelper.domain.usecase.universityclass.GetUniversityClassDataUseCase
 import com.studenthelper.ui.model.universityclass.toUiModel
 import com.studenthelper.ui.model.user.toUiModel
@@ -22,6 +26,10 @@ class UniversityClassViewModel @Inject constructor(
     private val getUniversityClassDataUseCase: GetUniversityClassDataUseCase,
     private val addHomeTaskUseCase: AddHomeTaskUseCase,
     private val deleteHomeTaskUseCase: DeleteHomeTaskUseCase,
+    private val addLinkUseCase: AddLinkUseCase,
+    private val addLinkToSeriesUseCase: AddLinkToSeriesUseCase,
+    private val deleteLinkUseCase: DeleteLinkUseCase,
+    private val deleteLinkFromSeriesUseCase: DeleteLinkFromSeriesUseCase,
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
 
@@ -57,6 +65,74 @@ class UniversityClassViewModel @Inject constructor(
                     homeTask = homeTask
                 )
             ) }
+        }
+    }
+
+    fun addLink(link: String, isForSeries: Boolean) {
+        val universityClass = _contentFlow.value?.universityClass ?: return
+        if (isForSeries) {
+            addLinkToSeriesUseCase(
+                scope = this,
+                data = AddLinkToSeriesUseCase.AddLinkData(
+                    seriesId = universityClass.seriesId,
+                    link = link
+                ),
+                onFailure = {
+                }
+            ) {
+                _contentFlow.update { it?.copy(
+                    universityClass = it.universityClass.copy(
+                        link = link
+                    )
+                ) }
+            }
+        } else {
+            addLinkUseCase(
+                scope = this,
+                data = AddLinkUseCase.AddLinkData(
+                    id = universityClassId,
+                    link = link
+                ),
+                onFailure = {
+                }
+            ) {
+                _contentFlow.update { it?.copy(
+                    universityClass = it.universityClass.copy(
+                        link = link
+                    )
+                ) }
+            }
+        }
+    }
+
+    fun deleteLink(isForSeries: Boolean) {
+        val universityClass = _contentFlow.value?.universityClass ?: return
+        if (isForSeries) {
+            deleteLinkFromSeriesUseCase(
+                scope = this,
+                data = universityClass.seriesId,
+                onFailure = {
+                }
+            ) {
+                _contentFlow.update { it?.copy(
+                    universityClass = it.universityClass.copy(
+                        link = null
+                    )
+                ) }
+            }
+        } else {
+            deleteLinkUseCase(
+                scope = this,
+                data = universityClassId,
+                onFailure = {
+                }
+            ) {
+                _contentFlow.update { it?.copy(
+                    universityClass = it.universityClass.copy(
+                        link = null
+                    )
+                ) }
+            }
         }
     }
 

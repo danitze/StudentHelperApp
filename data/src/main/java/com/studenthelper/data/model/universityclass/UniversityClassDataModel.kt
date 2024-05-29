@@ -16,7 +16,8 @@ data class UniversityClassDataModel(
     val lecturer: UserDataModel,
     val isOnline: Boolean,
     val place: String?,
-    val homeTask: String?
+    val homeTask: String?,
+    val link: String?
 )
 
 fun UniversityClassDataModel.toDomainModel(): UniversityClassDomainModel =
@@ -29,5 +30,6 @@ fun UniversityClassDataModel.toDomainModel(): UniversityClassDomainModel =
         lecturer = lecturer.toDomainModel(),
         isOnline = isOnline,
         place = place,
-        homeTask = homeTask
+        homeTask = homeTask,
+        link = link
     )

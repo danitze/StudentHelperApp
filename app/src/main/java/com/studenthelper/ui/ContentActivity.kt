@@ -6,16 +6,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import dagger.hilt.android.AndroidEntryPoint
 import com.studenthelper.library_ui.AppTheme
-import com.studenthelper.library_ui.Theme
 import com.studenthelper.ui.navigation.AppNavHost
-import com.studenthelper.ui.navigation.NavigationItem
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ContentActivity : ComponentActivity() {
