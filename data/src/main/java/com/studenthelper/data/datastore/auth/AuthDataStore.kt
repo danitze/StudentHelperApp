@@ -8,4 +8,6 @@ interface AuthDataStore {
 
     suspend fun getIsLoggedIn(): Boolean
 
+    suspend fun clearToken()
+
 }

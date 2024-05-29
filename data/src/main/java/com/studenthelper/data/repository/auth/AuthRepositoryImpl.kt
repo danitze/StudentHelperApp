@@ -21,4 +21,8 @@ class AuthRepositoryImpl @Inject constructor(
         return authDataStore.getIsLoggedIn()
     }
 
+    override suspend fun logout() {
+        authDataStore.clearToken()
+    }
+
 }

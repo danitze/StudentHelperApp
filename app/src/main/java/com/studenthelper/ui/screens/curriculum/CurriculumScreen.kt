@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import com.studenthelper.library_ui.components.Loader
 import com.studenthelper.ui.navigation.CLASS_ID
 import com.studenthelper.ui.navigation.NavigationItem
 import com.studenthelper.ui.screens.menu.MenuScreen
+import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
 import java.time.DayOfWeek
 import java.time.format.DateTimeFormatter
@@ -58,6 +60,19 @@ fun CurriculumScreen(
     val currentUser by viewModel.currentUserFlow.collectAsStateWithLifecycle()
     val noClasses by viewModel.noClassesFlow.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoadingFlow.collectAsStateWithLifecycle()
+    val loggedOutEvent by viewModel.loggedOutEventFlow.collectAsStateWithLifecycle()
+    loggedOutEvent?.let {
+        LaunchedEffect(Unit) {
+            launch {
+                navController.navigate(NavigationItem.Login.route) {
+                    popUpTo(NavigationItem.Curriculum.route) {
+                        inclusive = true
+                    }
+                }
+                viewModel.loggedOutEventConsumed()
+            }
+        }
+    }
     AppTheme {
         Scaffold(
             topBar = {
@@ -204,7 +219,11 @@ fun CurriculumScreen(
             { isMenuVisible = false }
         }
         MenuScreen(
-            onClose = onMenuCloseClick
+            onClose = onMenuCloseClick,
+            onLogout = {
+                onMenuCloseClick()
+                viewModel.onLogout()
+            }
         )
     }
 }

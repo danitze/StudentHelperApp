@@ -22,6 +22,10 @@ class AuthDataStoreImpl @Inject internal constructor(
         ).first() != null
     }
 
+    override suspend fun clearToken() {
+        preferencesDataStoreManager.removeString(PREFERENCES_KEY_TOKEN)
+    }
+
     companion object {
         private const val PREFERENCES_KEY_TOKEN = "PREFERENCES_KEY_TOKEN"
     }

@@ -1,6 +1,7 @@
 package com.studenthelper.ui.screens.curriculum
 
 import com.studenthelper.base.presentation.BaseViewModel
+import com.studenthelper.domain.usecase.auth.LogoutUseCase
 import com.studenthelper.domain.usecase.universityclass.GetUniversityClassesUseCase
 import com.studenthelper.ui.model.universityclass.UniversityClassUiModel
 import com.studenthelper.ui.model.universityclass.toUiModel
@@ -27,7 +28,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CurriculumViewModel @Inject constructor(
-    private val getUniversityClassesUseCase: GetUniversityClassesUseCase
+    private val getUniversityClassesUseCase: GetUniversityClassesUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : BaseViewModel() {
 
     val dateFlow: StateFlow<LocalDateTime>
@@ -40,6 +42,8 @@ class CurriculumViewModel @Inject constructor(
         get() = _noClassesFlow.stateIn(this, SharingStarted.Lazily, true)
     val currentUserFlow: StateFlow<UserUiModel?>
         get() = _currentUserFlow.asStateFlow()
+    val loggedOutEventFlow: StateFlow<Unit?>
+        get() = _loggedOutEventFlow.asStateFlow()
 
     private val _dateFlow = MutableStateFlow(
         java.time.LocalDateTime.now().run {
@@ -55,6 +59,7 @@ class CurriculumViewModel @Inject constructor(
     private val _universityClassesFlow = MutableStateFlow(listOf<UniversityClassUiModel>())
     private val _noClassesFlow = _universityClassesFlow.map { it.isEmpty() }
     private val _currentUserFlow = MutableStateFlow<UserUiModel?>(null)
+    private val _loggedOutEventFlow = MutableStateFlow<Unit?>(null)
 
     private var loadClassesJob: Job? = null
 
@@ -93,6 +98,21 @@ class CurriculumViewModel @Inject constructor(
             }
             it.toJavaLocalDateTime().minusDays(daysToSubtract).toKotlinLocalDateTime()
         }
+    }
+
+    fun onLogout() {
+        logoutUseCase(
+            scope = this,
+            onFailure = {
+
+            }
+        ) {
+            _loggedOutEventFlow.value = Unit
+        }
+    }
+
+    fun loggedOutEventConsumed() {
+        _loggedOutEventFlow.value = null
     }
 
     private fun loadClasses(

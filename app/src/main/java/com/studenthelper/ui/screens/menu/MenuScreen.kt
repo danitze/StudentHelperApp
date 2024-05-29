@@ -39,6 +39,7 @@ import com.studenthelper.ui.model.user.UserUiRole
 @Composable
 fun MenuScreen(
     onClose: () -> Unit = {},
+    onLogout: () -> Unit = {},
     viewModel: MenuViewModel = hiltViewModel()
 ) {
     val isLoading by viewModel.isLoadingFlow.collectAsStateWithLifecycle()
@@ -142,7 +143,7 @@ fun MenuScreen(
                 )
 
                 Button(
-                    onClick = {},
+                    onClick = onLogout,
                     modifier = Modifier.constrainAs(logoutButtonRef) {
                         top.linkTo(groupRef.bottom, margin = 8.dp)
                         start.linkTo(parent.start, margin = 16.dp)
