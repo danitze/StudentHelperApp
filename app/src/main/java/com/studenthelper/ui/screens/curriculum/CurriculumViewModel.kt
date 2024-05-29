@@ -111,6 +111,20 @@ class CurriculumViewModel @Inject constructor(
         }
     }
 
+    fun refreshData() {
+        val date = _dateFlow.value
+        loadClasses(
+            fromDate = java.time.LocalDateTime.of(
+                date.date.toJavaLocalDate(),
+                LocalTime.MIDNIGHT
+            ).toKotlinLocalDateTime(),
+            toDate = java.time.LocalDateTime.of(
+                date.date.toJavaLocalDate().plusDays(1),
+                LocalTime.MIDNIGHT
+            ).minusNanos(1).toKotlinLocalDateTime()
+        )
+    }
+
     fun loggedOutEventConsumed() {
         _loggedOutEventFlow.value = null
     }

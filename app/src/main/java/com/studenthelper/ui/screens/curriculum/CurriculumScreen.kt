@@ -73,6 +73,11 @@ fun CurriculumScreen(
             }
         }
     }
+    LaunchedEffect(key1 = Unit) {
+        launch {
+            viewModel.refreshData()
+        }
+    }
     AppTheme {
         Scaffold(
             topBar = {
